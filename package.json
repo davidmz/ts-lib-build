@@ -1,0 +1,13 @@
+{
+  "name": "@davidmz/build-ts-lib",
+  "version": "0.1.0",
+  "description": "",
+  "bin": "index.js",
+  "keywords": [],
+  "author": "David Mzareulyan",
+  "license": "MIT",
+  "type": "module",
+  "dependencies": {
+    "unbuild": "^2.0.0"
+  }
+}
