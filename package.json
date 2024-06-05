@@ -4,7 +4,8 @@
   "description": "",
   "bin": "index.js",
   "keywords": [],
-  "author": "David Mzareulyan",
+  "homepage": "https://github.com/davidmz/build-ts-lib",
+  "author": "David Mzareulyan <david@hiero.ru> (https://github.com/davidmz)",
   "license": "MIT",
   "type": "module",
   "dependencies": {
