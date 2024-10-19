@@ -1,6 +1,6 @@
 {
   "name": "@davidmz/ts-lib-build",
-  "version": "0.1.0",
+  "version": "0.2.1",
   "description": "A builder for the small TypeScript libraries based on 'unbuild'",
   "bin": "index.js",
   "module": "index.js",
@@ -9,6 +9,12 @@
   "author": "David Mzareulyan <david@hiero.ru> (https://github.com/davidmz)",
   "license": "MIT",
   "type": "module",
+  "files": [
+    "index.js",
+    "build.js",
+    "LICENSE.txt",
+    "README.md"
+  ],
   "scripts": {
     "lint": "eslint .",
     "test": "vitest run"
