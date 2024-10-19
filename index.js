@@ -1,2 +1,2 @@
-import { build } from "./build";
+import { build } from "./build.js";
 await build();
