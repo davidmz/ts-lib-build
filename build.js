@@ -1,15 +1,14 @@
-import { copyFileSync, readFile, writeFile } from "fs/promises";
+import { copyFile, readFile, writeFile } from "fs/promises";
 import { build } from "unbuild";
 
-const pkjJsonConfKey = "buildTsLib";
-const configFileName = "build-ts-lib.config.json";
+const configFileName = "ts-lib-build.config.json";
 
 const pkgJsonContent = await readFile("package.json", { encoding: "utf8" });
 const pkgJson = JSON.parse(pkgJsonContent);
 
 const defaultConfig = {
   buildDir: pkgJson.publishConfig?.directory ?? "./build",
-  exports: [""],
+  dirsToExport: [""],
   trimReadme: true,
   fieldsToCopy: [
     "name",
@@ -25,33 +24,30 @@ const defaultConfig = {
 
 let config = {};
 
-if (pkgJson[pkjJsonConfKey]) {
-  config = pkgJson[pkjJsonConfKey];
-} else {
-  // If there is no config in package.json, try to read it from build-ts-lib.config.json
-  try {
-    const configContent = await readFile(configFileName, { encoding: "utf8" });
-    config = JSON.parse(configContent);
-  } catch (e) {
-    // It's ok if there is no config file
-    if (e.code !== "ENOENT") {
-      throw e;
-    }
+// Trying to read config from build-ts-lib.config.json
+try {
+  const configContent = await readFile(configFileName, { encoding: "utf8" });
+  config = JSON.parse(configContent);
+} catch (e) {
+  // It's ok if there is no config file
+  if (e.code !== "ENOENT") {
+    throw e;
   }
 }
 
 config = { ...defaultConfig, ...config };
 
-const paths = config.exports.map((path) => (path ? `/${path}` : ""));
+const paths = config.dirsToExport.map((path) => (path ? `/${path}` : ""));
 
 const ubConfig = {
   declaration: true,
-  outDir,
+  outDir: config.buildDir,
   clean: true,
   sourcemap: true,
   entries: paths.map((p) => `./src${p}/index`),
   rollup: {
     emitCJS: true,
+    esbuild: { target: "esnext" },
   },
   hooks: { "build:done": preparePackage },
 };
@@ -86,7 +82,7 @@ async function preparePackage() {
 
     // Create per-dir package.json for IDEs
     await writeFile(
-      `${outDir}${p}/package.json`,
+      `${config.buildDir}${p}/package.json`,
       JSON.stringify(
         {
           name: `${pkgJson.name}${p}`,
@@ -95,14 +91,17 @@ async function preparePackage() {
           sideEffects: false,
         },
         null,
-        2
-      )
+        2,
+      ),
     );
   }
 
-  await writeFile(`${outDir}/package.json`, JSON.stringify(newPkg, null, 2));
+  await writeFile(
+    `${config.buildDir}/package.json`,
+    JSON.stringify(newPkg, null, 2),
+  );
   try {
-    await copyFile("LICENSE.txt", `${outDir}/LICENSE.txt`);
+    await copyFile("LICENSE.txt", `${config.buildDir}/LICENSE.txt`);
   } catch (e) {
     if (e.code !== "ENOENT") {
       throw e;
@@ -112,8 +111,8 @@ async function preparePackage() {
   if (config.trimReadme && newPkg.homepage) {
     try {
       await writeFile(
-        `${outDir}/README.md`,
-        `See [package home](${newPkg.homepage}) for actual README`
+        `${config.buildDir}/README.md`,
+        `See [package home](${newPkg.homepage}) for actual README`,
       );
     } catch (e) {
       if (e.code !== "ENOENT") {
@@ -122,7 +121,7 @@ async function preparePackage() {
     }
   } else {
     try {
-      await copyFile("README.md", `${outDir}/README.md`);
+      await copyFile("README.md", `${config.buildDir}/README.md`);
     } catch (e) {
       if (e.code !== "ENOENT") {
         throw e;

@@ -1,4 +1,4 @@
-# build-ts-lib
+# ts-lib-build
 
 ## Description
 
