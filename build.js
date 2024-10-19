@@ -20,6 +20,7 @@ const alwaysCopyingFields = [
   "license",
   "sideEffects",
   "dependencies",
+  "peerDependencies",
 ];
 
 export async function build(forceBuildDir = null) {
