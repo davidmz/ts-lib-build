@@ -2,7 +2,7 @@
   "name": "@davidmz/ts-lib-build",
   "version": "0.1.0",
   "description": "A builder for the small TypeScript libraries based on 'unbuild'",
-  "bin": "index.js",
+  "bin": "build.js",
   "keywords": [],
   "homepage": "https://github.com/davidmz/ts-lib-build",
   "author": "David Mzareulyan <david@hiero.ru> (https://github.com/davidmz)",
