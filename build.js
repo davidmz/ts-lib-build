@@ -1,10 +1,18 @@
 import { copyFile, readFile, writeFile } from "fs/promises";
+import { isArray, isBoolean, isObject, isString } from "ts-json-check";
 import { build } from "unbuild";
 
 const configFileName = "ts-lib-build.config.json";
 
 const pkgJsonContent = await readFile("package.json", { encoding: "utf8" });
 const pkgJson = JSON.parse(pkgJsonContent);
+
+const isValidConfig = isObject({
+  buildDir: isString,
+  dirsToExport: isArray(isString),
+  trimReadme: isBoolean,
+  fieldsToCopy: isArray(isString),
+});
 
 const defaultConfig = {
   buildDir: pkgJson.publishConfig?.directory ?? "./build",
@@ -36,6 +44,10 @@ try {
 }
 
 config = { ...defaultConfig, ...config };
+
+if (!isValidConfig(config)) {
+  throw new Error(`Invalid ${configFileName} structure`);
+}
 
 const paths = config.dirsToExport.map((path) => (path ? `/${path}` : ""));
 

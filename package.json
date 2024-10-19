@@ -12,6 +12,7 @@
     "lint": "eslint ."
   },
   "dependencies": {
+    "ts-json-check": "^2.0.3",
     "unbuild": "^2.0.0"
   },
   "devDependencies": {
