@@ -1,6 +1,6 @@
 {
   "name": "@davidmz/ts-lib-build",
-  "version": "0.2.3",
+  "version": "0.2.4",
   "description": "A builder for the small TypeScript libraries based on 'unbuild'",
   "bin": "index.js",
   "module": "index.js",
