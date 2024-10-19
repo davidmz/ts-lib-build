@@ -2,14 +2,16 @@
   "name": "@davidmz/ts-lib-build",
   "version": "0.1.0",
   "description": "A builder for the small TypeScript libraries based on 'unbuild'",
-  "bin": "build.js",
+  "bin": "index.js",
+  "module": "index.js",
   "keywords": [],
   "homepage": "https://github.com/davidmz/ts-lib-build",
   "author": "David Mzareulyan <david@hiero.ru> (https://github.com/davidmz)",
   "license": "MIT",
   "type": "module",
   "scripts": {
-    "lint": "eslint ."
+    "lint": "eslint .",
+    "test": "vitest run"
   },
   "dependencies": {
     "ts-json-check": "^2.0.3",
@@ -17,10 +19,12 @@
   },
   "devDependencies": {
     "@eslint/js": "^9.13.0",
+    "dir-compare": "^5.0.0",
     "eslint": "^9.13.0",
     "eslint-config-prettier": "^9.1.0",
     "eslint-plugin-prettier": "^5.2.1",
     "globals": "^15.11.0",
-    "prettier": "^3.3.3"
+    "prettier": "^3.3.3",
+    "vitest": "^2.1.3"
   }
 }

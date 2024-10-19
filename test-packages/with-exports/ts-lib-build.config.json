@@ -1,0 +1,4 @@
+{
+  "dirsToExport": ["", "foo"],
+  "trimReadme": false
+}

@@ -1,11 +1,8 @@
 import { copyFile, readFile, writeFile } from "fs/promises";
 import { isArray, isBoolean, isObject, isString } from "ts-json-check";
-import { build } from "unbuild";
+import { build as unbuild } from "unbuild";
 
 const configFileName = "ts-lib-build.config.json";
-
-const pkgJsonContent = await readFile("package.json", { encoding: "utf8" });
-const pkgJson = JSON.parse(pkgJsonContent);
 
 const isValidConfig = isObject({
   buildDir: isString,
@@ -14,63 +11,78 @@ const isValidConfig = isObject({
   fieldsToCopy: isArray(isString),
 });
 
-const defaultConfig = {
-  buildDir: pkgJson.publishConfig?.directory ?? "./build",
-  dirsToExport: [""],
-  trimReadme: true,
-  fieldsToCopy: [
-    "name",
-    "version",
-    "description",
-    "homepage",
-    "author",
-    "license",
-    "sideEffects",
-    "dependencies",
-  ],
-};
+const alwaysCopyingFields = [
+  "name",
+  "version",
+  "description",
+  "homepage",
+  "author",
+  "license",
+  "sideEffects",
+  "dependencies",
+];
 
-let config = {};
+export async function build(forceBuildDir = null) {
+  const pkgJsonContent = await readFile("package.json", { encoding: "utf8" });
+  const pkgJson = JSON.parse(pkgJsonContent);
+  const defaultConfig = {
+    buildDir: pkgJson.publishConfig?.directory ?? "./build",
+    dirsToExport: [""],
+    trimReadme: true,
+    fieldsToCopy: [],
+  };
 
-// Trying to read config from build-ts-lib.config.json
-try {
-  const configContent = await readFile(configFileName, { encoding: "utf8" });
-  config = JSON.parse(configContent);
-} catch (e) {
-  // It's ok if there is no config file
-  if (e.code !== "ENOENT") {
-    throw e;
+  let config = {};
+
+  // Trying to read config from build-ts-lib.config.json
+  try {
+    const configContent = await readFile(configFileName, { encoding: "utf8" });
+    config = JSON.parse(configContent);
+  } catch (e) {
+    // It's ok if there is no config file
+    if (e.code !== "ENOENT") {
+      throw e;
+    }
   }
+
+  config = { ...defaultConfig, ...config };
+  config.fieldsToCopy = [
+    ...new Set([...alwaysCopyingFields, ...config.fieldsToCopy]),
+  ];
+
+  if (forceBuildDir) {
+    config.buildDir = forceBuildDir;
+  }
+
+  if (!isValidConfig(config)) {
+    throw new Error(`Invalid ${configFileName} structure`);
+  }
+
+  const paths = getPaths(config);
+
+  console.log(
+    `🏗 Building the "${pkgJson.name}", with export paths: ${JSON.stringify(paths.map((p) => "." + p))}`,
+  );
+
+  await unbuild(".", false, {
+    declaration: true,
+    outDir: config.buildDir,
+    clean: true,
+    sourcemap: true,
+    entries: paths.map((p) => `./src${p}/index`),
+    rollup: {
+      emitCJS: true,
+      esbuild: { target: "esnext" },
+    },
+    hooks: { "build:done": () => preparePackage(config, pkgJson) },
+  });
+
+  console.log("✔ Build done");
 }
-
-config = { ...defaultConfig, ...config };
-
-if (!isValidConfig(config)) {
-  throw new Error(`Invalid ${configFileName} structure`);
-}
-
-const paths = config.dirsToExport.map((path) => (path ? `/${path}` : ""));
-
-const ubConfig = {
-  declaration: true,
-  outDir: config.buildDir,
-  clean: true,
-  sourcemap: true,
-  entries: paths.map((p) => `./src${p}/index`),
-  rollup: {
-    emitCJS: true,
-    esbuild: { target: "esnext" },
-  },
-  hooks: { "build:done": preparePackage },
-};
-
-await build(".", false, ubConfig);
-
-console.log("✔ Done");
-
 // -------------------------
 
-async function preparePackage() {
+async function preparePackage(config, pkgJson) {
+  const paths = getPaths(config);
   const newPkg = {};
   for (const f of config.fieldsToCopy) {
     if (f in pkgJson) {
@@ -140,4 +152,8 @@ async function preparePackage() {
       }
     }
   }
+}
+
+function getPaths(config) {
+  return config.dirsToExport.map((path) => (path ? `/${path}` : ""));
 }

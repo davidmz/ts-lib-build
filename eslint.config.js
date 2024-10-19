@@ -16,4 +16,5 @@ export default [
   },
   eslintConfigPrettier,
   eslintPluginPrettierRecommended,
+  { ignores: ["**/__build/"] },
 ];

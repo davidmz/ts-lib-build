@@ -1,0 +1,19 @@
+{
+  "name": "ts-lib-build--with-exports",
+  "version": "0.1.0",
+  "description": "A test project for 'ts-lib-build'",
+  "homepage": "https://example.com",
+  "license": "MIT",
+  "main": "./index.cjs",
+  "module": "./index.mjs",
+  "exports": {
+    ".": {
+      "require": "./index.cjs",
+      "import": "./index.mjs"
+    },
+    "./foo": {
+      "require": "./foo/index.cjs",
+      "import": "./foo/index.mjs"
+    }
+  }
+}
