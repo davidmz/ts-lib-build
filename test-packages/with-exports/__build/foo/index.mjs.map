@@ -1,1 +1,1 @@
-{"version":3,"file":"index.mjs","sources":["../../src/foo/index.ts"],"sourcesContent":["export const bar = \"bar\";\r\n"],"names":[],"mappings":"AAAO,MAAM,GAAM,GAAA;;;;"}
+{"version":3,"file":"index.mjs","sources":["../../src/foo/index.ts"],"sourcesContent":["export const bar = \"bar\";\r\n"],"names":[],"mappings":"AAAO,MAAM,GAAA,GAAM;;;;"}
